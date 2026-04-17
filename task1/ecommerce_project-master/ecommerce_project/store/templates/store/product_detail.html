@@ -1,0 +1,33 @@
+{% extends 'store/base.html' %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="product-detail">
+  <div class="product-image">
+    {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% else %}
+      <div class="no-image large">No Image</div>
+    {% endif %}
+  </div>
+  <div class="product-info">
+    <h1>{{ product.name }}</h1>
+    {% if product.category %}<p class="category">{{ product.category.name }}</p>{% endif %}
+    <p class="price large">${{ product.price }}</p>
+    <p class="description">{{ product.description }}</p>
+    <p class="stock">
+      {% if product.stock > 0 %}✅ In stock ({{ product.stock }} available)
+      {% else %}❌ Out of stock{% endif %}
+    </p>
+    {% if product.stock > 0 %}
+    <form method="POST" action="{% url 'cart_add' product.id %}">
+      {% csrf_token %}
+      <div class="qty-row">
+        <label>Quantity:</label>
+        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
+      </div>
+      <button type="submit" class="btn btn-primary btn-large">Add to Cart</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

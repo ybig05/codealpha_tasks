@@ -1,0 +1,32 @@
+{% extends 'store/base.html' %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<div class="checkout-layout">
+  <div class="checkout-form">
+    <h2>Shipping Information</h2>
+    <form method="POST">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        <label>{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<span class="error">{{ field.errors }}</span>{% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary btn-large">Place Order</button>
+    </form>
+  </div>
+  <div class="order-summary">
+    <h2>Order Summary</h2>
+    {% for item in cart %}
+    <div class="summary-item">
+      <span>{{ item.product.name }} × {{ item.quantity }}</span>
+      <span>${{ item.subtotal }}</span>
+    </div>
+    {% endfor %}
+    <div class="summary-total">
+      <strong>Total: ${{ cart.total }}</strong>
+    </div>
+  </div>
+</div>
+{% endblock %}

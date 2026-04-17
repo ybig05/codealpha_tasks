@@ -1,0 +1,43 @@
+<!-- store/templates/store/home.html -->
+{% extends 'store/base.html' %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<section class="page-header">
+  <h1>Our Products</h1>
+  <div class="category-filter">
+    <a href="{% url 'home' %}" class="btn {% if not request.GET.category %}btn-active{% endif %}">All</a>
+    {% for cat in categories %}
+      <a href="?category={{ cat.slug }}"
+         class="btn {% if request.GET.category == cat.slug %}btn-active{% endif %}">
+        {{ cat.name }}
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="product-grid">
+  {% for product in products %}
+  <div class="product-card">
+    {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% else %}
+      <div class="no-image">No Image</div>
+    {% endif %}
+    <div class="card-body">
+      <h3><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h3>
+      <p class="price">${{ product.price }}</p>
+      <p class="stock">{% if product.stock > 0 %}In stock ({{ product.stock }}){% else %}<span class="out">Out of stock</span>{% endif %}</p>
+      {% if product.stock > 0 %}
+      <form method="POST" action="{% url 'cart_add' product.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="btn btn-primary">Add to Cart</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  {% empty %}
+  <p>No products found.</p>
+  {% endfor %}
+</div>
+{% endblock %}

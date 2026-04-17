@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Project Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #121729;
+            --bg-tertiary: #1a1f3a;
+            --bg-card: #1e2642;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #2d3548;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-accent: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        body {
+            font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Background Animation */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Auth Screens */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-logo p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #5558e3;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-success {
+            background: var(--accent-success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--accent-danger);
+            color: white;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .auth-link a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main App Layout */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .app-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .app-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-btn {
+            position: relative;
+            background: var(--bg-tertiary);
+            border: none;
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .notification-btn:hover {
+            background: var(--bg-card);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--accent-danger);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.15rem 0.4rem;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .user-menu:hover {
+            background: var(--bg-card);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .app-main {
+            flex: 1;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .app-sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .project-list {
+            list-style: none;
+        }
+
+        .project-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .project-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .project-item.active {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent-primary);
+        }
+
+        .project-info {
+            flex: 1;
+        }
+
+        .project-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .project-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .project-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+        }
+
+        /* Content Area */
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .view-container {
+            display: none;
+        }
+
+        .view-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Projects View */
+        .projects-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .projects-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-primary);
+        }
+
+        .project-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .project-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-card-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .project-card-stats {
+            display: flex;
+            gap: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Board View */
+        .board-header {
+            margin-bottom: 2rem;
+        }
+
+        .board-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .board-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .board-columns {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .board-column {
+            flex: 0 0 320px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .column-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .column-count {
+            background: var(--bg-tertiary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .task-list {
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .task-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-primary);
+        }
+
+        .task-card.dragging {
+            opacity: 0.5;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+        }
+
+        .task-labels {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .task-label {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .label-high { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .label-medium { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+        .label-low { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+
+        .task-assignees {
+            display: flex;
+            gap: -0.5rem;
+        }
+
+        .assignee-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            border: 2px solid var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.5rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Task Detail Modal */
+        .task-detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+
+        .task-detail-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .task-detail-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .comment-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .comment-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .comment-input {
+            flex: 1;
+        }
+
+        /* Notifications Panel */
+        .notifications-panel {
+            position: fixed;
+            top: 70px;
+            right: 2rem;
+            width: 380px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            display: none;
+            z-index: 999;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .notifications-panel.active {
+            display: block;
+        }
+
+        .notifications-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notifications-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .clear-all-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent-primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .notifications-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notification-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .notification-item.unread {
+            background: rgba(99, 102, 241, 0.05);
+            border-left: 3px solid var(--accent-primary);
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .notification-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            font-size: 0.85rem;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-connected .status-dot {
+            background: var(--accent-success);
+        }
+
+        .status-disconnected .status-dot {
+            background: var(--accent-danger);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--bg-tertiary);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-sidebar {
+                display: none;
+            }
+
+            .app-header {
+                padding: 1rem;
+            }
+
+            .app-content {
+                padding: 1rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .board-columns {
+                flex-direction: column;
+            }
+
+            .board-column {
+                flex: 1;
+            }
+
+            .notifications-panel {
+                left: 1rem;
+                right: 1rem;
+                width: auto;
+            }
+        }
+
+        .select-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .select-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .member-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+
+        .member-item .assignee-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 0.85rem;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .member-email {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .remove-member-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent-danger);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .remove-member-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <!-- Auth Container -->
+    <div class="container auth-container" id="authContainer">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <h1>TaskFlow</h1>
+                <p>Collaborate, organize, and achieve more together</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span>Sign In</span>
+                </button>
+                <div class="auth-link">
+                    Don't have an account? <a href="#" id="showSignup">Sign up</a>
+                </div>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="hidden">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" class="form-control" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" class="form-control" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span>Create Account</span>
+                </button>
+                <div class="auth-link">
+                    Already have an account? <a href="#" id="showLogin">Sign in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="app-logo">TaskFlow</div>
+                <nav class="header-nav">
+                    <button class="nav-btn active" data-view="projects">Projects</button>
+                    <button class="nav-btn" data-view="dashboard">Dashboard</button>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="notification-btn" id="notificationBtn">
+                    <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <span class="notification-badge" id="notificationCount">0</span>
+                </button>
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar" id="userAvatar">JD</div>
+                    <span class="user-name" id="userName">John Doe</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <!-- Sidebar -->
+            <aside class="app-sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-header">
+                        <h3 class="sidebar-title">Projects</h3>
+                        <button class="btn btn-sm btn-primary" id="newProjectBtn">+ New</button>
+                    </div>
+                    <ul class="project-list" id="projectList">
+                        <!-- Projects will be dynamically added here -->
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Content -->
+            <div class="app-content">
+                <!-- Projects View -->
+                <div class="view-container active" id="projectsView">
+                    <div class="projects-header">
+                        <h2>My Projects</h2>
+                        <button class="btn btn-primary" id="createProjectBtn">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <span>New Project</span>
+                        </button>
+                    </div>
+                    <div class="projects-grid" id="projectsGrid">
+                        <!-- Project cards will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Board View -->
+                <div class="view-container" id="boardView">
+                    <div class="board-header">
+                        <h2 class="board-title" id="boardTitle">Project Board</h2>
+                        <p class="board-meta" id="boardMeta">Organize and track your tasks</p>
+                    </div>
+                    <div class="board-columns" id="boardColumns">
+                        <!-- Columns will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Dashboard View -->
+                <div class="view-container" id="dashboardView">
+                    <h2>Dashboard</h2>
+                    <p class="board-meta">Overview of all your projects and tasks</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3 class="notifications-title">Notifications</h3>
+            <button class="clear-all-btn" id="clearNotifications">Clear all</button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <!-- Notifications will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div class="modal" id="createProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Project</h3>
+                <button class="modal-close" onclick="closeModal('createProjectModal')">&times;</button>
+            </div>
+            <form id="createProjectForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="projectName">Project Name</label>
+                        <input type="text" id="projectName" class="form-control" placeholder="Enter project name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDescription">Description</label>
+                        <textarea id="projectDescription" class="form-control" rows="3" placeholder="Describe your project"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectColor">Color</label>
+                        <select id="projectColor" class="form-control">
+                            <option value="#6366f1">Indigo</option>
+                            <option value="#8b5cf6">Purple</option>
+                            <option value="#ec4899">Pink</option>
+                            <option value="#f59e0b">Amber</option>
+                            <option value="#10b981">Green</option>
+                            <option value="#3b82f6">Blue</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('createProjectModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div class="modal" id="createTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Task</h3>
+                <button class="modal-close" onclick="closeModal('createTaskModal')">&times;</button>
+            </div>
+            <form id="createTaskForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="taskTitle">Task Title</label>
+                        <input type="text" id="taskTitle" class="form-control" placeholder="Enter task title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDescription">Description</label>
+                        <textarea id="taskDescription" class="form-control" rows="3" placeholder="Describe the task"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriority">Priority</label>
+                        <select id="taskPriority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskAssignee">Assign To</label>
+                        <select id="taskAssignee" class="form-control">
+                            <option value="">Unassigned</option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="taskColumn">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('createTaskModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="modal" id="taskDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Task Details</h3>
+                <button class="modal-close" onclick="closeModal('taskDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="task-detail-section">
+                    <h3 class="task-detail-title" id="detailTaskTitle"></h3>
+                    <p class="task-detail-desc" id="detailTaskDesc"></p>
+                </div>
+
+                <div class="task-detail-section">
+                    <div class="section-label">Details</div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="detailTaskPriority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="detailTaskStatus" class="form-control">
+                            <option value="todo">To Do</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="review">Review</option>
+                            <option value="done">Done</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Assigned To</label>
+                        <select id="detailTaskAssignee" class="form-control">
+                            <option value="">Unassigned</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="task-detail-section">
+                    <div class="section-label">Comments</div>
+                    <div class="comment-list" id="commentList">
+                        <!-- Comments will be dynamically added here -->
+                    </div>
+                    <div class="comment-form">
+                        <input type="text" class="form-control comment-input" id="commentInput" placeholder="Add a comment...">
+                        <button type="button" class="btn btn-primary" id="addCommentBtn">Post</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="deleteTaskBtn">Delete Task</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('taskDetailModal')">Close</button>
+                <button type="button" class="btn btn-primary" id="saveTaskBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Settings Modal -->
+    <div class="modal" id="projectSettingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Project Settings</h3>
+                <button class="modal-close" onclick="closeModal('projectSettingsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="settingsProjectName">Project Name</label>
+                    <input type="text" id="settingsProjectName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="settingsProjectDescription">Description</label>
+                    <textarea id="settingsProjectDescription" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="task-detail-section">
+                    <div class="section-label">Team Members</div>
+                    <div class="form-group">
+                        <label for="addMemberEmail">Add Member by Email</label>
+                        <div class="flex gap-2">
+                            <input type="email" id="addMemberEmail" class="form-control" placeholder="email@example.com">
+                            <button type="button" class="btn btn-primary" id="addMemberBtn">Add</button>
+                        </div>
+                    </div>
+                    <div class="member-list" id="memberList">
+                        <!-- Members will be listed here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="deleteProjectBtn">Delete Project</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('projectSettingsModal')">Close</button>
+                <button type="button" class="btn btn-primary" id="saveProjectBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Indicator -->
+    <div class="status-indicator status-connected" id="statusIndicator">
+        <div class="status-dot"></div>
+        <span>Connected</span>
+    </div>
+
+    <script>
+        // Application State
+        const AppState = {
+            currentUser: null,
+            projects: [],
+            currentProject: null,
+            tasks: {},
+            notifications: [],
+            ws: null,
+            users: []
+        };
+
+        // Mock WebSocket for demo (replace with real WebSocket in production)
+        class MockWebSocket {
+            constructor(url) {
+                this.url = url;
+                this.readyState = 1; // OPEN
+                setTimeout(() => {
+                    if (this.onopen) this.onopen();
+                }, 100);
+            }
+
+            send(data) {
+                console.log('WebSocket send:', data);
+                // Simulate receiving the message back
+                setTimeout(() => {
+                    if (this.onmessage) {
+                        this.onmessage({ data });
+                    }
+                }, 500);
+            }
+
+            close() {
+                this.readyState = 3; // CLOSED
+                if (this.onclose) this.onclose();
+            }
+        }
+
+        // Initialize app
+        function initApp() {
+            loadFromStorage();
+            setupEventListeners();
+            
+            // Check if user is logged in
+            if (AppState.currentUser) {
+                showApp();
+                connectWebSocket();
+            }
+        }
+
+        // Storage functions
+        function saveToStorage() {
+            localStorage.setItem('taskflow_user', JSON.stringify(AppState.currentUser));
+            localStorage.setItem('taskflow_projects', JSON.stringify(AppState.projects));
+            localStorage.setItem('taskflow_tasks', JSON.stringify(AppState.tasks));
+            localStorage.setItem('taskflow_users', JSON.stringify(AppState.users));
+            localStorage.setItem('taskflow_notifications', JSON.stringify(AppState.notifications));
+        }
+
+        function loadFromStorage() {
+            const user = localStorage.getItem('taskflow_user');
+            const projects = localStorage.getItem('taskflow_projects');
+            const tasks = localStorage.getItem('taskflow_tasks');
+            const users = localStorage.getItem('taskflow_users');
+            const notifications = localStorage.getItem('taskflow_notifications');
+
+            if (user) AppState.currentUser = JSON.parse(user);
+            if (projects) AppState.projects = JSON.parse(projects);
+            if (tasks) AppState.tasks = JSON.parse(tasks);
+            if (users) AppState.users = JSON.parse(users);
+            if (notifications) AppState.notifications = JSON.parse(notifications);
+
+            // Initialize with demo data if empty
+            if (AppState.users.length === 0) {
+                AppState.users = [
+                    { id: '1', name: 'John Doe', email: 'john@example.com', password: 'password' },
+                    { id: '2', name: 'Jane Smith', email: 'jane@example.com', password: 'password' },
+                    { id: '3', name: 'Mike Johnson', email: 'mike@example.com', password: 'password' }
+                ];
+            }
+        }
+
+        // Auth functions
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const user = AppState.users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                AppState.currentUser = user;
+                saveToStorage();
+                showApp();
+                connectWebSocket();
+            } else {
+                alert('Invalid credentials. Try: john@example.com / password');
+            }
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            // Check if user exists
+            if (AppState.users.find(u => u.email === email)) {
+                alert('User already exists');
+                return;
+            }
+
+            const newUser = {
+                id: Date.now().toString(),
+                name,
+                email,
+                password
+            };
+
+            AppState.users.push(newUser);
+            AppState.currentUser = newUser;
+            saveToStorage();
+            showApp();
+            connectWebSocket();
+        }
+
+        function logout() {
+            AppState.currentUser = null;
+            localStorage.removeItem('taskflow_user');
+            if (AppState.ws) {
+                AppState.ws.close();
+            }
+            location.reload();
+        }
+
+        function showApp() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').classList.add('active');
+            
+            // Update user info
+            document.getElementById('userName').textContent = AppState.currentUser.name;
+            document.getElementById('userAvatar').textContent = getInitials(AppState.currentUser.name);
+            
+            renderProjects();
+            renderNotifications();
+        }
+
+        // WebSocket functions
+        function connectWebSocket() {
+            // In production, use: new WebSocket('ws://localhost:3000')
+            AppState.ws = new MockWebSocket('ws://localhost:3000');
+            
+            AppState.ws.onopen = () => {
+                console.log('WebSocket connected');
+                updateConnectionStatus(true);
+            };
+
+            AppState.ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                handleWebSocketMessage(message);
+            };
+
+            AppState.ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                updateConnectionStatus(false);
+                // Attempt to reconnect after 5 seconds
+                setTimeout(connectWebSocket, 5000);
+            };
+        }
+
+        function handleWebSocketMessage(message) {
+            console.log('Received:', message);
+            
+            switch (message.type) {
+                case 'task_created':
+                case 'task_updated':
+                case 'task_deleted':
+                case 'comment_added':
+                    addNotification(message);
+                    if (AppState.currentProject && message.projectId === AppState.currentProject.id) {
+                        renderBoard();
+                    }
+                    break;
+            }
+        }
+
+        function broadcastUpdate(type, data) {
+            if (AppState.ws && AppState.ws.readyState === 1) {
+                AppState.ws.send(JSON.stringify({ type, ...data }));
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const indicator = document.getElementById('statusIndicator');
+            if (connected) {
+                indicator.className = 'status-indicator status-connected';
+                indicator.querySelector('span').textContent = 'Connected';
+            } else {
+                indicator.className = 'status-indicator status-disconnected';
+                indicator.querySelector('span').textContent = 'Disconnected';
+            }
+        }
+
+        // Project functions
+        function createProject(e) {
+            e.preventDefault();
+            
+            const project = {
+                id: Date.now().toString(),
+                name: document.getElementById('projectName').value,
+                description: document.getElementById('projectDescription').value,
+                color: document.getElementById('projectColor').value,
+                createdBy: AppState.currentUser.id,
+                createdAt: new Date().toISOString(),
+                members: [AppState.currentUser.id],
+                taskCount: 0
+            };
+
+            AppState.projects.push(project);
+            AppState.tasks[project.id] = {
+                'todo': [],
+                'in-progress': [],
+                'review': [],
+                'done': []
+            };
+
+            saveToStorage();
+            renderProjects();
+            closeModal('createProjectModal');
+            document.getElementById('createProjectForm').reset();
+
+            addNotification({
+                type: 'project_created',
+                title: 'Project Created',
+                message: `${project.name} has been created`,
+                time: new Date().toISOString()
+            });
+        }
+
+        function renderProjects() {
+            const grid = document.getElementById('projectsGrid');
+            const list = document.getElementById('projectList');
+            
+            if (AppState.projects.length === 0) {
+                grid.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1/-1; text-align: center; padding: 3rem;">No projects yet. Create your first project to get started!</p>';
+                list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem;">No projects</p>';
+                return;
+            }
+
+            // Render grid
+            grid.innerHTML = AppState.projects.map(project => {
+                const taskCount = Object.values(AppState.tasks[project.id] || {}).flat().length;
+                const completedCount = (AppState.tasks[project.id]?.done || []).length;
+                
+                return `
+                    <div class="project-card" onclick="openProject('${project.id}')">
+                        <div class="project-card-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <div class="project-color" style="background: ${project.color}; width: 16px; height: 16px;"></div>
+                                    <h3 class="project-card-title">${project.name}</h3>
+                                </div>
+                                <p class="project-card-desc">${project.description || 'No description'}</p>
+                            </div>
+                            <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); openProjectSettings('${project.id}')">⚙️</button>
+                        </div>
+                        <div class="project-card-stats">
+                            <div class="stat-item">
+                                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                <span>${taskCount} tasks</span>
+                            </div>
+                            <div class="stat-item">
+                                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span>${completedCount} done</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render sidebar list
+            list.innerHTML = AppState.projects.map(project => `
+                <li class="project-item ${AppState.currentProject?.id === project.id ? 'active' : ''}" onclick="openProject('${project.id}')">
+                    <div class="project-color" style="background: ${project.color}"></div>
+                    <div class="project-info">
+                        <div class="project-name">${project.name}</div>
+                        <div class="project-meta">${Object.values(AppState.tasks[project.id] || {}).flat().length} tasks</div>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function openProject(projectId) {
+            AppState.currentProject = AppState.projects.find(p => p.id === projectId);
+            switchView('board');
+            renderBoard();
+            renderProjects(); // Update active state in sidebar
+        }
+
+        function openProjectSettings(projectId) {
+            const project = AppState.projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            document.getElementById('settingsProjectName').value = project.name;
+            document.getElementById('settingsProjectDescription').value = project.description || '';
+            
+            // Render members
+            renderProjectMembers(project);
+            
+            document.getElementById('projectSettingsModal').classList.add('active');
+            
+            // Store current project for saving
+            document.getElementById('saveProjectBtn').onclick = () => saveProjectSettings(projectId);
+            document.getElementById('deleteProjectBtn').onclick = () => deleteProject(projectId);
+        }
+
+        function renderProjectMembers(project) {
+            const memberList = document.getElementById('memberList');
+            const members = AppState.users.filter(u => project.members.includes(u.id));
+            
+            memberList.innerHTML = members.map(member => `
+                <div class="member-item">
+                    <div class="assignee-avatar">${getInitials(member.name)}</div>
+                    <div class="member-info">
+                        <div class="member-name">${member.name}</div>
+                        <div class="member-email">${member.email}</div>
+                    </div>
+                    ${member.id !== AppState.currentUser.id ? `
+                        <button class="remove-member-btn" onclick="removeMember('${project.id}', '${member.id}')">Remove</button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function saveProjectSettings(projectId) {
+            const project = AppState.projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            project.name = document.getElementById('settingsProjectName').value;
+            project.description = document.getElementById('settingsProjectDescription').value;
+
+            saveToStorage();
+            renderProjects();
+            if (AppState.currentProject?.id === projectId) {
+                renderBoard();
+            }
+            closeModal('projectSettingsModal');
+
+            addNotification({
+                type: 'project_updated',
+                title: 'Project Updated',
+                message: `${project.name} has been updated`,
+                time: new Date().toISOString()
+            });
+        }
+
+        function deleteProject(projectId) {
+            if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) return;
+
+            AppState.projects = AppState.projects.filter(p => p.id !== projectId);
+            delete AppState.tasks[projectId];
+
+            if (AppState.currentProject?.id === projectId) {
+                AppState.currentProject = null;
+                switchView('projects');
+            }
+
+            saveToStorage();
+            renderProjects();
+            closeModal('projectSettingsModal');
+        }
+
+        // Task functions
+        function renderBoard() {
+            if (!AppState.currentProject) return;
+
+            document.getElementById('boardTitle').textContent = AppState.currentProject.name;
+            document.getElementById('boardMeta').textContent = AppState.currentProject.description || 'Organize and track your tasks';
+
+            const columns = document.getElementById('boardColumns');
+            const columnConfig = [
+                { id: 'todo', title: 'To Do', color: '#64748b' },
+                { id: 'in-progress', title: 'In Progress', color: '#3b82f6' },
+                { id: 'review', title: 'Review', color: '#f59e0b' },
+                { id: 'done', title: 'Done', color: '#10b981' }
+            ];
+
+            const projectTasks = AppState.tasks[AppState.currentProject.id] || {};
+
+            columns.innerHTML = columnConfig.map(column => {
+                const tasks = projectTasks[column.id] || [];
+                
+                return `
+                    <div class="board-column" data-column="${column.id}">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <div style="width: 12px; height: 12px; border-radius: 50%; background: ${column.color}"></div>
+                                ${column.title}
+                            </div>
+                            <div class="column-count">${tasks.length}</div>
+                        </div>
+                        <div class="task-list" data-column="${column.id}" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+                            ${tasks.map(task => renderTaskCard(task)).join('')}
+                        </div>
+                        <button class="btn btn-sm btn-secondary" style="width: 100%; margin-top: 0.5rem;" onclick="openCreateTask('${column.id}')">
+                            + Add Task
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            // Update assignee dropdowns
+            updateAssigneeDropdowns();
+        }
+
+        function renderTaskCard(task) {
+            const assignee = AppState.users.find(u => u.id === task.assignedTo);
+            const comments = task.comments || [];
+            
+            return `
+                <div class="task-card" draggable="true" ondragstart="handleDragStart(event)" data-task-id="${task.id}" onclick="openTaskDetail('${task.id}')">
+                    <div class="task-title">${task.title}</div>
+                    ${task.description ? `<div class="task-desc">${task.description}</div>` : ''}
+                    <div class="task-meta">
+                        <div class="task-labels">
+                            <span class="task-label label-${task.priority}">${task.priority.toUpperCase()}</span>
+                            ${comments.length > 0 ? `
+                                <span style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem;">
+                                    💬 ${comments.length}
+                                </span>
+                            ` : ''}
+                        </div>
+                        ${assignee ? `
+                            <div class="assignee-avatar" title="${assignee.name}">${getInitials(assignee.name)}</div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function openCreateTask(column) {
+            document.getElementById('taskColumn').value = column;
+            document.getElementById('createTaskModal').classList.add('active');
+        }
+
+        function createTask(e) {
+            e.preventDefault();
+
+            const task = {
+                id: Date.now().toString(),
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                priority: document.getElementById('taskPriority').value,
+                assignedTo: document.getElementById('taskAssignee').value,
+                column: document.getElementById('taskColumn').value,
+                createdBy: AppState.currentUser.id,
+                createdAt: new Date().toISOString(),
+                comments: []
+            };
+
+            if (!AppState.tasks[AppState.currentProject.id]) {
+                AppState.tasks[AppState.currentProject.id] = {
+                    'todo': [], 'in-progress': [], 'review': [], 'done': []
+                };
+            }
+
+            AppState.tasks[AppState.currentProject.id][task.column].push(task);
+            saveToStorage();
+            renderBoard();
+            renderProjects();
+            closeModal('createTaskModal');
+            document.getElementById('createTaskForm').reset();
+
+            broadcastUpdate('task_created', {
+                projectId: AppState.currentProject.id,
+                task
+            });
+
+            addNotification({
+                type: 'task_created',
+                title: 'Task Created',
+                message: `${task.title} has been added to ${task.column}`,
+                time: new Date().toISOString()
+            });
+        }
+
+        function openTaskDetail(taskId) {
+            const projectTasks = AppState.tasks[AppState.currentProject.id];
+            let task = null;
+            let column = null;
+
+            for (const [col, tasks] of Object.entries(projectTasks)) {
+                const found = tasks.find(t => t.id === taskId);
+                if (found) {
+                    task = found;
+                    column = col;
+                    break;
+                }
+            }
+
+            if (!task) return;
+
+            document.getElementById('detailTaskTitle').textContent = task.title;
+            document.getElementById('detailTaskDesc').textContent = task.description || 'No description';
+            document.getElementById('detailTaskPriority').value = task.priority;
+            document.getElementById('detailTaskStatus').value = column;
+            document.getElementById('detailTaskAssignee').value = task.assignedTo || '';
+
+            renderComments(task);
+
+            document.getElementById('taskDetailModal').classList.add('active');
+
+            // Setup event handlers
+            document.getElementById('saveTaskBtn').onclick = () => saveTaskChanges(taskId, column);
+            document.getElementById('deleteTaskBtn').onclick = () => deleteTask(taskId, column);
+            document.getElementById('addCommentBtn').onclick = () => addComment(taskId, column);
+        }
+
+        function renderComments(task) {
+            const list = document.getElementById('commentList');
+            const comments = task.comments || [];
+
+            if (comments.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No comments yet</p>';
+                return;
+            }
+
+            list.innerHTML = comments.map(comment => {
+                const user = AppState.users.find(u => u.id === comment.userId);
+                const timeAgo = getTimeAgo(comment.time);
+
+                return `
+                    <div class="comment-item">
+                        <div class="comment-avatar">${getInitials(user?.name || 'Unknown')}</div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">${user?.name || 'Unknown'}</span>
+                                <span class="comment-time">${timeAgo}</span>
+                            </div>
+                            <div class="comment-text">${comment.text}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addComment(taskId, column) {
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+
+            const projectTasks = AppState.tasks[AppState.currentProject.id];
+            const task = projectTasks[column].find(t => t.id === taskId);
+
+            if (!task) return;
+
+            const comment = {
+                id: Date.now().toString(),
+                userId: AppState.currentUser.id,
+                text,
+                time: new Date().toISOString()
+            };
+
+            task.comments = task.comments || [];
+            task.comments.push(comment);
+
+            saveToStorage();
+            renderComments(task);
+            renderBoard();
+            input.value = '';
+
+            broadcastUpdate('comment_added', {
+                projectId: AppState.currentProject.id,
+                taskId,
+                comment
+            });
+
+            addNotification({
+                type: 'comment_added',
+                title: 'New Comment',
+                message: `${AppState.currentUser.name} commented on ${task.title}`,
+                time: new Date().toISOString()
+            });
+        }
+
+        function saveTaskChanges(taskId, oldColumn) {
+            const projectTasks = AppState.tasks[AppState.currentProject.id];
+            const newColumn = document.getElementById('detailTaskStatus').value;
+            const task = projectTasks[oldColumn].find(t => t.id === taskId);
+
+            if (!task) return;
+
+            task.priority = document.getElementById('detailTaskPriority').value;
+            task.assignedTo = document.getElementById('detailTaskAssignee').value;
+
+            // Move task if column changed
+            if (oldColumn !== newColumn) {
+                projectTasks[oldColumn] = projectTasks[oldColumn].filter(t => t.id !== taskId);
+                projectTasks[newColumn].push(task);
+            }
+
+            saveToStorage();
+            renderBoard();
+            closeModal('taskDetailModal');
+
+            broadcastUpdate('task_updated', {
+                projectId: AppState.currentProject.id,
+                taskId,
+                changes: { priority: task.priority, assignedTo: task.assignedTo, column: newColumn }
+            });
+
+            addNotification({
+                type: 'task_updated',
+                title: 'Task Updated',
+                message: `${task.title} has been updated`,
+                time: new Date().toISOString()
+            });
+        }
+
+        function deleteTask(taskId, column) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+
+            const projectTasks = AppState.tasks[AppState.currentProject.id];
+            projectTasks[column] = projectTasks[column].filter(t => t.id !== taskId);
+
+            saveToStorage();
+            renderBoard();
+            renderProjects();
+            closeModal('taskDetailModal');
+
+            broadcastUpdate('task_deleted', {
+                projectId: AppState.currentProject.id,
+                taskId
+            });
+        }
+
+        // Drag and drop
+        let draggedTask = null;
+
+        function handleDragStart(e) {
+            draggedTask = e.target.dataset.taskId;
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            
+            const column = e.currentTarget.dataset.column;
+            const projectTasks = AppState.tasks[AppState.currentProject.id];
+            
+            let task = null;
+            let oldColumn = null;
+
+            for (const [col, tasks] of Object.entries(projectTasks)) {
+                const found = tasks.find(t => t.id === draggedTask);
+                if (found) {
+                    task = found;
+                    oldColumn = col;
+                    break;
+                }
+            }
+
+            if (!task || oldColumn === column) {
+                document.querySelector('.dragging')?.classList.remove('dragging');
+                return;
+            }
+
+            projectTasks[oldColumn] = projectTasks[oldColumn].filter(t => t.id !== draggedTask);
+            projectTasks[column].push(task);
+
+            saveToStorage();
+            renderBoard();
+
+            broadcastUpdate('task_updated', {
+                projectId: AppState.currentProject.id,
+                taskId: draggedTask,
+                changes: { column }
+            });
+
+            addNotification({
+                type: 'task_updated',
+                title: 'Task Moved',
+                message: `${task.title} moved to ${column}`,
+                time: new Date().toISOString()
+            });
+        }
+
+        // Notifications
+        function addNotification(notification) {
+            notification.id = Date.now().toString();
+            notification.unread = true;
+            AppState.notifications.unshift(notification);
+            
+            // Keep only last 50 notifications
+            if (AppState.notifications.length > 50) {
+                AppState.notifications = AppState.notifications.slice(0, 50);
+            }
+
+            saveToStorage();
+            renderNotifications();
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationsList');
+            const count = document.getElementById('notificationCount');
+            
+            const unreadCount = AppState.notifications.filter(n => n.unread).length;
+            count.textContent = unreadCount;
+            count.style.display = unreadCount > 0 ? 'block' : 'none';
+
+            if (AppState.notifications.length === 0) {
+                list.innerHTML = '<p style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">No notifications</p>';
+                return;
+            }
+
+            list.innerHTML = AppState.notifications.map(notif => `
+                <div class="notification-item ${notif.unread ? 'unread' : ''}" onclick="markAsRead('${notif.id}')">
+                    <div class="notification-header">
+                        <span class="notification-title">${notif.title}</span>
+                        <span class="notification-time">${getTimeAgo(notif.time)}</span>
+                    </div>
+                    <div class="notification-text">${notif.message}</div>
+                </div>
+            `).join('');
+        }
+
+        function markAsRead(notificationId) {
+            const notif = AppState.notifications.find(n => n.id === notificationId);
+            if (notif) {
+                notif.unread = false;
+                saveToStorage();
+                renderNotifications();
+            }
+        }
+
+        function clearNotifications() {
+            if (confirm('Clear all notifications?')) {
+                AppState.notifications = [];
+                saveToStorage();
+                renderNotifications();
+            }
+        }
+
+        // Helper functions
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            if (seconds < 60) return 'just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        function switchView(view) {
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.getElementById(view + 'View').classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-view="${view}"]`)?.classList.add('active');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function updateAssigneeDropdowns() {
+            const project = AppState.currentProject;
+            if (!project) return;
+
+            const members = AppState.users.filter(u => project.members.includes(u.id));
+            const options = '<option value="">Unassigned</option>' + 
+                members.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+
+            document.getElementById('taskAssignee').innerHTML = options;
+            document.getElementById('detailTaskAssignee').innerHTML = options;
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            // Auth
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('signupForm').addEventListener('submit', handleSignup);
+            document.getElementById('showSignup').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('signupForm').classList.remove('hidden');
+            });
+            document.getElementById('showLogin').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('signupForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+            });
+
+            // Navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => switchView(btn.dataset.view));
+            });
+
+            // Modals
+            document.getElementById('createProjectBtn').addEventListener('click', () => openModal('createProjectModal'));
+            document.getElementById('newProjectBtn').addEventListener('click', () => openModal('createProjectModal'));
+            document.getElementById('createProjectForm').addEventListener('submit', createProject);
+            document.getElementById('createTaskForm').addEventListener('submit', createTask);
+
+            // Notifications
+            document.getElementById('notificationBtn').addEventListener('click', () => {
+                document.getElementById('notificationsPanel').classList.toggle('active');
+            });
+            document.getElementById('clearNotifications').addEventListener('click', clearNotifications);
+
+            // User menu
+            document.getElementById('userMenu').addEventListener('click', () => {
+                if (confirm('Do you want to logout?')) {
+                    logout();
+                }
+            });
+
+            // Members
+            document.getElementById('addMemberBtn').addEventListener('click', () => {
+                const email = document.getElementById('addMemberEmail').value;
+                const user = AppState.users.find(u => u.email === email);
+                
+                if (!user) {
+                    alert('User not found');
+                    return;
+                }
+
+                if (AppState.currentProject.members.includes(user.id)) {
+                    alert('User is already a member');
+                    return;
+                }
+
+                AppState.currentProject.members.push(user.id);
+                saveToStorage();
+                renderProjectMembers(AppState.currentProject);
+                document.getElementById('addMemberEmail').value = '';
+            });
+
+            // Close modals on outside click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        function removeMember(projectId, userId) {
+            const project = AppState.projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            project.members = project.members.filter(m => m !== userId);
+            saveToStorage();
+            renderProjectMembers(project);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

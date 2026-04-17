@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pulse — Social</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Variables ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0d0d0f;
+  --surface:  #16161a;
+  --surface2: #1e1e24;
+  --border:   #2a2a33;
+  --accent:   #7c5cfc;
+  --accent2:  #fc5c7d;
+  --text:     #f0f0f5;
+  --muted:    #7070889;
+  --muted:    #6b6b80;
+  --green:    #4cde8a;
+  --radius:   14px;
+  --shadow:   0 4px 32px rgba(0,0,0,.45);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* ── Layout ──────────────────────────────────────────────────── */
+#app { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform .3s ease;
+}
+
+.logo {
+  padding: 0 24px 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.logo-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+.logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 24px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 0;
+  transition: all .2s;
+  border-left: 3px solid transparent;
+  user-select: none;
+}
+.nav-item:hover { color: var(--text); background: rgba(124,92,252,.08); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(124,92,252,.1); }
+.nav-icon { font-size: 18px; width: 22px; text-align: center; }
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.topbar {
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(13,13,15,.8);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 90;
+}
+.topbar-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 7px 16px;
+  width: 220px;
+}
+.search-bar input {
+  background: none; border: none; outline: none;
+  font-size: 13px; color: var(--text); font-family: inherit; width: 100%;
+}
+.search-bar input::placeholder { color: var(--muted); }
+
+.content { padding: 28px; max-width: 680px; margin: 0 auto; width: 100%; }
+.right-panel {
+  width: 300px;
+  flex-shrink: 0;
+  padding: 28px 20px;
+  border-left: 1px solid var(--border);
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.app-body { display: flex; flex: 1; }
+
+/* ── Cards & UI ──────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* ── Auth Screen ─────────────────────────────────────────────── */
+#auth-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+  padding: 20px;
+}
+.auth-card {
+  width: 100%; max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: var(--shadow);
+  animation: slideUp .4s ease;
+}
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.auth-logo .logo-text { font-size: 36px; }
+.auth-logo p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+.auth-tabs {
+  display: flex; gap: 0;
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 28px;
+}
+.auth-tab {
+  flex: 1; text-align: center;
+  padding: 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: all .2s;
+}
+.auth-tab.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(124,92,252,.4);
+}
+
+.form-group { margin-bottom: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; letter-spacing: .3px; }
+input, textarea, select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 11px 14px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color .2s;
+  outline: none;
+}
+input:focus, textarea:focus { border-color: var(--accent); }
+textarea { resize: vertical; min-height: 100px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px 20px;
+  border: none; border-radius: 9px;
+  font-family: inherit; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all .2s; outline: none;
+  text-decoration: none;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #9c6ffd);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(124,92,252,.3);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,92,252,.45); }
+.btn-primary:active { transform: none; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-danger { background: rgba(252,92,125,.15); color: var(--accent2); border: 1px solid rgba(252,92,125,.2); }
+.btn-danger:hover { background: rgba(252,92,125,.25); }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
+.btn-full { width: 100%; }
+.btn-icon { width: 36px; height: 36px; padding: 0; border-radius: 50%; }
+
+/* ── Avatar ──────────────────────────────────────────────────── */
+.avatar {
+  border-radius: 50%; object-fit: cover;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.avatar-sm { width: 36px; height: 36px; font-size: 13px; }
+.avatar-md { width: 48px; height: 48px; font-size: 16px; }
+.avatar-lg { width: 80px; height: 80px; font-size: 26px; }
+.avatar-xl { width: 100px; height: 100px; font-size: 32px; }
+
+/* ── Post Composer ───────────────────────────────────────────── */
+.composer {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.composer-top { display: flex; gap: 12px; }
+.composer-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  resize: none;
+  min-height: 80px;
+  outline: none;
+  transition: border-color .2s;
+}
+.composer-input:focus { border-color: var(--accent); }
+.composer-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.char-count { font-size: 12px; color: var(--muted); }
+.char-count.warn { color: var(--accent2); }
+
+/* ── Post Card ───────────────────────────────────────────────── */
+.post {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  animation: slideUp .3s ease;
+  transition: border-color .2s;
+}
+.post:hover { border-color: rgba(124,92,252,.3); }
+.post-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px 12px; }
+.post-meta { flex: 1; }
+.post-author { font-weight: 600; font-size: 14px; cursor: pointer; }
+.post-author:hover { color: var(--accent); }
+.post-time { font-size: 12px; color: var(--muted); }
+.post-body { padding: 0 20px 14px; font-size: 15px; line-height: 1.65; }
+.post-image { width: 100%; max-height: 380px; object-fit: cover; border-top: 1px solid var(--border); }
+.post-actions {
+  display: flex; align-items: center; gap: 4px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+}
+.action-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 12px;
+  border: none; background: none; color: var(--muted);
+  font-size: 13px; font-family: inherit;
+  cursor: pointer; border-radius: 8px;
+  transition: all .2s;
+}
+.action-btn:hover { background: rgba(255,255,255,.05); color: var(--text); }
+.action-btn.liked { color: var(--accent2); }
+.action-btn.liked:hover { background: rgba(252,92,125,.1); }
+.action-btn-count { font-weight: 500; }
+
+.comments-section {
+  padding: 0 20px 16px;
+  border-top: 1px solid var(--border);
+  display: none;
+}
+.comments-section.open { display: block; }
+.comment {
+  display: flex; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  animation: slideUp .2s ease;
+}
+.comment:last-child { border-bottom: none; }
+.comment-body { flex: 1; }
+.comment-author { font-size: 13px; font-weight: 600; cursor: pointer; }
+.comment-author:hover { color: var(--accent); }
+.comment-text { font-size: 13px; color: var(--text); opacity: .85; margin-top: 2px; line-height: 1.5; }
+.comment-time { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.comment-input-row { display: flex; gap: 10px; margin-top: 12px; align-items: flex-end; }
+.comment-input-row input { flex: 1; }
+
+/* ── Profile Page ────────────────────────────────────────────── */
+.profile-hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.profile-banner {
+  height: 120px;
+  background: linear-gradient(135deg, rgba(124,92,252,.3), rgba(252,92,125,.3));
+}
+.profile-info {
+  padding: 0 24px 24px;
+  margin-top: -40px;
+}
+.profile-top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 16px; }
+.profile-name { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-top: 8px; }
+.profile-handle { color: var(--muted); font-size: 14px; }
+.profile-bio { font-size: 14px; line-height: 1.6; color: var(--text); opacity: .8; margin: 12px 0; }
+.profile-stats { display: flex; gap: 24px; }
+.stat { text-align: center; cursor: pointer; }
+.stat-num { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
+.stat-label { font-size: 12px; color: var(--muted); }
+.stat:hover .stat-num { color: var(--accent); }
+
+/* ── Suggested Users ─────────────────────────────────────────── */
+.panel-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.user-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.user-card:last-child { border-bottom: none; }
+.user-card-info { flex: 1; }
+.user-card-name { font-size: 13px; font-weight: 600; }
+.user-card-handle { font-size: 12px; color: var(--muted); }
+
+/* ── Notification dot ───────────────────────────────────────── */
+.dot {
+  width: 8px; height: 8px;
+  background: var(--accent2);
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 6px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .6; transform: scale(.8); }
+}
+
+/* ── Misc ────────────────────────────────────────────────────── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.alert { padding: 12px 16px; border-radius: 9px; font-size: 13px; margin-bottom: 16px; }
+.alert-error { background: rgba(252,92,125,.1); color: var(--accent2); border: 1px solid rgba(252,92,125,.2); }
+.alert-success { background: rgba(76,222,138,.1); color: var(--green); border: 1px solid rgba(76,222,138,.2); }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.tag { display: inline-block; background: rgba(124,92,252,.15); color: var(--accent); border-radius: 6px; padding: 3px 10px; font-size: 12px; font-weight: 500; }
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.2); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+  animation: fadeIn .2s ease;
+  padding: 20px;
+}
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 32px;
+  width: 100%; max-width: 480px;
+  box-shadow: var(--shadow);
+  animation: slideUp .3s ease;
+}
+.modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 24px; }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .right-panel { display: none; }
+}
+@media (max-width: 640px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: none; }
+  .main { margin-left: 0; }
+}
+
+/* ── Hidden utility ──────────────────────────────────────────── */
+.hidden { display: none !important; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-8 { gap: 8px; }
+.ml-auto { margin-left: auto; }
+.mt-16 { margin-top: 16px; }
+.text-muted { color: var(--muted); font-size: 13px; }
+.font-bold { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ── AUTH SCREEN ─────────────────────────────────────────── -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-text">Pulse</div>
+      <p>Your new social home ✦</p>
+    </div>
+
+    <div id="auth-alert" class="hidden"></div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')">Create Account</div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="Enter your username" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Enter your password" />
+      </div>
+      <button class="btn btn-primary btn-full mt-16" onclick="handleLogin()">
+        <span id="login-btn-text">Sign In</span>
+      </button>
+      <p class="text-muted" style="text-align:center;margin-top:16px;">
+        Demo: <strong>alice</strong> / <strong>password123</strong>
+      </p>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form" class="hidden">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="reg-first" placeholder="John" />
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="reg-last" placeholder="Doe" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="reg-username" placeholder="johndoe" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="john@example.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="Min. 6 characters" />
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="reg-password2" placeholder="Repeat password" />
+      </div>
+      <button class="btn btn-primary btn-full mt-16" onclick="handleRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ────────────────────────────────────────────── -->
+<div id="app" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-text">Pulse</div>
+      <div class="logo-sub">Social Network</div>
+    </div>
+
+    <nav>
+      <div class="nav-item active" id="nav-feed" onclick="showPage('feed')">
+        <span class="nav-icon">🏠</span> Home Feed
+      </div>
+      <div class="nav-item" id="nav-explore" onclick="showPage('explore')">
+        <span class="nav-icon">🔭</span> Explore
+      </div>
+      <div class="nav-item" id="nav-profile" onclick="showPage('profile')">
+        <span class="nav-icon">👤</span> My Profile
+      </div>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div id="sidebar-user" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div class="avatar avatar-sm" id="sidebar-avatar"></div>
+        <div>
+          <div style="font-size:13px;font-weight:600;" id="sidebar-name"></div>
+          <div style="font-size:11px;color:var(--muted);" id="sidebar-handle"></div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-full btn-sm" onclick="handleLogout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title" id="page-title">Home Feed</span>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="search-input" placeholder="Search people…" oninput="handleSearch(this.value)" />
+      </div>
+      <div id="search-results" style="position:absolute;top:52px;right:28px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);min-width:260px;z-index:200;display:none;box-shadow:var(--shadow);overflow:hidden;"></div>
+    </header>
+
+    <div class="app-body">
+      <main class="content">
+
+        <!-- FEED PAGE -->
+        <div id="page-feed">
+          <!-- Composer -->
+          <div class="composer" id="composer">
+            <div class="composer-top">
+              <div class="avatar avatar-sm" id="composer-avatar"></div>
+              <textarea class="composer-input" id="post-content" placeholder="What's on your mind?" maxlength="2000" oninput="updateCharCount()"></textarea>
+            </div>
+            <div class="composer-actions">
+              <span class="char-count" id="char-count">0 / 2000</span>
+              <button class="btn btn-primary btn-sm" onclick="createPost()">
+                Publish ✦
+              </button>
+            </div>
+          </div>
+
+          <div id="feed-posts"></div>
+        </div>
+
+        <!-- EXPLORE PAGE -->
+        <div id="page-explore" class="hidden">
+          <div id="explore-posts"></div>
+        </div>
+
+        <!-- PROFILE PAGE -->
+        <div id="page-profile" class="hidden">
+          <div id="profile-content"></div>
+        </div>
+
+      </main>
+
+      <!-- Right Panel -->
+      <aside class="right-panel">
+        <div class="panel-title">Who to Follow</div>
+        <div id="suggested-users"></div>
+
+        <div style="margin-top:28px;">
+          <div class="panel-title">Trending</div>
+          <div id="trending-section" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal-overlay hidden" id="edit-profile-modal">
+  <div class="modal">
+    <div class="modal-title">Edit Profile</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="ep-first" />
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="ep-last" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Bio</label>
+      <textarea id="ep-bio" placeholder="Tell people about yourself…" style="min-height:80px;"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="ep-location" />
+      </div>
+      <div class="form-group">
+        <label>Website</label>
+        <input type="text" id="ep-website" />
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+      <button class="btn btn-outline" onclick="closeModal('edit-profile-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Followers/Following Modal -->
+<div class="modal-overlay hidden" id="follow-modal">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="modal-title" id="follow-modal-title" style="margin:0;"></div>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('follow-modal')">✕</button>
+    </div>
+    <div id="follow-list"></div>
+  </div>
+</div>
+
+<script>
+// ── Config ───────────────────────────────────────────────────────────────
+const API = 'http://localhost:8000/api';
+let token = localStorage.getItem('pulse_token');
+let currentUser = null;
+let viewingUser = null; // for profile page
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+const api = async (path, opts = {}) => {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Token ${token}`;
+  const res = await fetch(API + path, { headers, ...opts, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw err;
+  }
+  if (res.status === 204) return null;
+  return res.json();
+};
+
+const timeAgo = (dateStr) => {
+  const diff = (Date.now() - new Date(dateStr)) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
+};
+
+const initials = (user) => {
+  if (user.first_name) return (user.first_name[0] + (user.last_name?.[0] || '')).toUpperCase();
+  return user.username[0].toUpperCase();
+};
+
+const avatarEl = (user, cls = 'avatar-sm') => {
+  const d = document.createElement('div');
+  d.className = `avatar ${cls}`;
+  d.textContent = initials(user);
+  const hue = user.username.charCodeAt(0) * 15 % 360;
+  d.style.background = `linear-gradient(135deg, hsl(${hue},70%,55%), hsl(${(hue+60)%360},70%,55%))`;
+  return d;
+};
+
+const showAlert = (msg, type = 'error') => {
+  const el = document.getElementById('auth-alert');
+  el.innerHTML = msg;
+  el.className = `alert alert-${type}`;
+  el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 4000);
+};
+
+// ── Auth ─────────────────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'?0:1)===i));
+  document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+}
+
+async function handleLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!username || !password) return showAlert('Please fill in all fields');
+  try {
+    const data = await api('/auth/login/', { method: 'POST', body: { username, password } });
+    token = data.token;
+    localStorage.setItem('pulse_token', token);
+    currentUser = data.user;
+    initApp();
+  } catch(e) {
+    showAlert(e.error || 'Login failed. Check your credentials.');
+  }
+}
+
+async function handleRegister() {
+  const body = {
+    username: document.getElementById('reg-username').value.trim(),
+    email: document.getElementById('reg-email').value.trim(),
+    first_name: document.getElementById('reg-first').value.trim(),
+    last_name: document.getElementById('reg-last').value.trim(),
+    password: document.getElementById('reg-password').value,
+    password2: document.getElementById('reg-password2').value,
+  };
+  if (!body.username || !body.password) return showAlert('Username and password required');
+  try {
+    const data = await api('/auth/register/', { method: 'POST', body });
+    token = data.token;
+    localStorage.setItem('pulse_token', token);
+    currentUser = data.user;
+    initApp();
+  } catch(e) {
+    const msg = Object.values(e).flat().join(' ');
+    showAlert(msg || 'Registration failed');
+  }
+}
+
+function handleLogout() {
+  api('/auth/logout/', { method: 'POST' }).catch(()=>{});
+  token = null; currentUser = null;
+  localStorage.removeItem('pulse_token');
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+}
+
+// ── App Init ─────────────────────────────────────────────────────────────
+async function initApp() {
+  if (!token) return;
+  try {
+    currentUser = await api('/auth/me/');
+  } catch { handleLogout(); return; }
+
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+
+  // Sidebar info
+  const av = avatarEl(currentUser, 'avatar-sm');
+  const avEl = document.getElementById('sidebar-avatar');
+  avEl.parentNode.replaceChild(av, avEl);
+  av.id = 'sidebar-avatar';
+  document.getElementById('sidebar-name').textContent =
+    currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name}` : currentUser.username;
+  document.getElementById('sidebar-handle').textContent = '@' + currentUser.username;
+
+  const cAv = avatarEl(currentUser, 'avatar-sm');
+  const cAvEl = document.getElementById('composer-avatar');
+  cAvEl.parentNode.replaceChild(cAv, cAvEl);
+  cAv.id = 'composer-avatar';
+
+  showPage('feed');
+  loadSuggestions();
+  loadTrending();
+}
+
+// ── Pages ─────────────────────────────────────────────────────────────────
+const pages = { feed: 'Home Feed', explore: 'Explore', profile: 'My Profile' };
+function showPage(page) {
+  Object.keys(pages).forEach(p => {
+    document.getElementById('page-' + p).classList.toggle('hidden', p !== page);
+    document.getElementById('nav-' + p)?.classList.toggle('active', p === page);
+  });
+  document.getElementById('page-title').textContent = pages[page];
+  if (page === 'feed') loadFeed();
+  if (page === 'explore') loadExplore();
+  if (page === 'profile') { viewingUser = currentUser; loadProfile(currentUser.username); }
+}
+
+// ── Feed ──────────────────────────────────────────────────────────────────
+async function loadFeed() {
+  const el = document.getElementById('feed-posts');
+  el.innerHTML = '<div class="empty-state"><div class="spinner"></div></div>';
+  try {
+    const posts = await api('/posts/?feed=true');
+    renderPosts(el, Array.isArray(posts) ? posts : posts.results || []);
+  } catch { el.innerHTML = '<div class="empty-state"><div class="empty-icon">⚡</div><div class="empty-title">Couldn\'t load feed</div></div>'; }
+}
+
+async function loadExplore() {
+  const el = document.getElementById('explore-posts');
+  el.innerHTML = '<div class="empty-state"><div class="spinner"></div></div>';
+  try {
+    const data = await api('/posts/');
+    renderPosts(el, Array.isArray(data) ? data : data.results || []);
+  } catch {}
+}
+
+function renderPosts(container, posts) {
+  if (!posts.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">✦</div>
+      <div class="empty-title">Nothing here yet</div>
+      <p class="text-muted">Be the first to post, or follow some people!</p>
+    </div>`;
+    return;
+  }
+  container.innerHTML = '';
+  posts.forEach(p => container.appendChild(buildPost(p)));
+}
+
+function buildPost(post) {
+  const el = document.createElement('div');
+  el.className = 'post';
+  el.id = 'post-' + post.id;
+
+  const av = avatarEl(post.author, 'avatar-sm');
+  const avWrapper = document.createElement('div');
+
+  const commentsHtml = (post.comments || []).map(c => `
+    <div class="comment" id="comment-${c.id}">
+      <div class="avatar avatar-sm" style="background:linear-gradient(135deg,hsl(${c.author.username.charCodeAt(0)*15%360},70%,55%),hsl(${(c.author.username.charCodeAt(0)*15+60)%360},70%,55%));display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;border-radius:50%;flex-shrink:0;">${initials(c.author)}</div>
+      <div class="comment-body">
+        <span class="comment-author" onclick="goToProfile('${c.author.username}')">${c.author.first_name||c.author.username}</span>
+        <div class="comment-text">${escHtml(c.content)}</div>
+        <div class="comment-time">${timeAgo(c.created_at)}</div>
+      </div>
+      ${currentUser && c.author.id === currentUser.id ? `<button class="btn btn-danger btn-sm btn-icon" style="width:28px;height:28px;font-size:11px;" onclick="deleteComment(${c.id},'${post.id}')">✕</button>` : ''}
+    </div>
+  `).join('');
+
+  el.innerHTML = `
+    <div class="post-header">
+      <div id="av-${post.id}"></div>
+      <div class="post-meta">
+        <div class="post-author" onclick="goToProfile('${post.author.username}')">${post.author.first_name ? post.author.first_name + ' ' + (post.author.last_name||'') : post.author.username}</div>
+        <div class="post-time">@${post.author.username} · ${timeAgo(post.created_at)}</div>
+      </div>
+      ${currentUser && post.author.id === currentUser.id ? `
+        <button class="btn btn-danger btn-sm btn-icon" style="width:30px;height:30px;" onclick="deletePost(${post.id})">🗑</button>
+      ` : ''}
+    </div>
+    <div class="post-body">${escHtml(post.content)}</div>
+    <div class="post-actions">
+      <button class="action-btn ${post.is_liked?'liked':''}" id="like-btn-${post.id}" onclick="toggleLike(${post.id})">
+        ${post.is_liked ? '❤️' : '🤍'} <span class="action-btn-count" id="like-count-${post.id}">${post.likes_count}</span>
+      </button>
+      <button class="action-btn" onclick="toggleComments(${post.id})">
+        💬 <span>${post.comments_count}</span>
+      </button>
+    </div>
+    <div class="comments-section" id="comments-${post.id}">
+      <div id="comments-list-${post.id}">${commentsHtml}</div>
+      <div class="comment-input-row">
+        <input type="text" id="comment-input-${post.id}" placeholder="Write a comment…" onkeydown="if(event.key==='Enter')addComment(${post.id})" />
+        <button class="btn btn-primary btn-sm" onclick="addComment(${post.id})">Post</button>
+      </div>
+    </div>
+  `;
+
+  // inject avatar
+  const placeholder = el.querySelector(`#av-${post.id}`);
+  const realAv = avatarEl(post.author, 'avatar-sm');
+  placeholder.parentNode.replaceChild(realAv, placeholder);
+
+  return el;
+}
+
+const escHtml = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+
+// ── Post Actions ──────────────────────────────────────────────────────────
+function updateCharCount() {
+  const v = document.getElementById('post-content').value.length;
+  const el = document.getElementById('char-count');
+  el.textContent = `${v} / 2000`;
+  el.classList.toggle('warn', v > 1800);
+}
+
+async function createPost() {
+  const content = document.getElementById('post-content').value.trim();
+  if (!content) return;
+  try {
+    const post = await api('/posts/', { method: 'POST', body: { content } });
+    post.is_liked = false;
+    const feedPosts = document.getElementById('feed-posts');
+    // Remove empty state if present
+    feedPosts.querySelector('.empty-state')?.remove();
+    feedPosts.prepend(buildPost(post));
+    document.getElementById('post-content').value = '';
+    updateCharCount();
+  } catch(e) { alert('Failed to post'); }
+}
+
+async function deletePost(id) {
+  if (!confirm('Delete this post?')) return;
+  try {
+    await api(`/posts/${id}/`, { method: 'DELETE' });
+    document.getElementById('post-' + id)?.remove();
+  } catch {}
+}
+
+async function toggleLike(postId) {
+  try {
+    const data = await api(`/posts/${postId}/like/`, { method: 'POST' });
+    const btn = document.getElementById(`like-btn-${postId}`);
+    const cnt = document.getElementById(`like-count-${postId}`);
+    btn.classList.toggle('liked', data.liked);
+    btn.innerHTML = `${data.liked ? '❤️' : '🤍'} <span class="action-btn-count" id="like-count-${postId}">${data.likes_count}</span>`;
+  } catch {}
+}
+
+function toggleComments(postId) {
+  document.getElementById(`comments-${postId}`)?.classList.toggle('open');
+}
+
+async function addComment(postId) {
+  const input = document.getElementById(`comment-input-${postId}`);
+  const content = input.value.trim();
+  if (!content) return;
+  try {
+    const comment = await api(`/posts/${postId}/comments/`, { method: 'POST', body: { content } });
+    input.value = '';
+    const list = document.getElementById(`comments-list-${postId}`);
+    const c = comment;
+    const div = document.createElement('div');
+    div.className = 'comment';
+    div.id = 'comment-' + c.id;
+    div.innerHTML = `
+      <div class="avatar avatar-sm" style="background:linear-gradient(135deg,hsl(${c.author.username.charCodeAt(0)*15%360},70%,55%),hsl(${(c.author.username.charCodeAt(0)*15+60)%360},70%,55%));display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;border-radius:50%;flex-shrink:0;">${initials(c.author)}</div>
+      <div class="comment-body">
+        <span class="comment-author">${c.author.first_name||c.author.username}</span>
+        <div class="comment-text">${escHtml(c.content)}</div>
+        <div class="comment-time">just now</div>
+      </div>
+      <button class="btn btn-danger btn-sm btn-icon" style="width:28px;height:28px;font-size:11px;" onclick="deleteComment(${c.id},'${postId}')">✕</button>
+    `;
+    list.appendChild(div);
+  } catch {}
+}
+
+async function deleteComment(commentId, postId) {
+  try {
+    await api(`/comments/${commentId}/`, { method: 'DELETE' });
+    document.getElementById('comment-' + commentId)?.remove();
+  } catch {}
+}
+
+// ── Profile ───────────────────────────────────────────────────────────────
+async function loadProfile(username) {
+  const el = document.getElementById('profile-content');
+  el.innerHTML = '<div class="empty-state"><div class="spinner"></div></div>';
+  try {
+    const [user, posts] = await Promise.all([
+      api(`/users/${username}/`),
+      api(`/users/${username}/posts/`)
+    ]);
+    viewingUser = user;
+    const isMe = currentUser && user.id === currentUser.id;
+    const p = user.profile;
+    const av = avatarEl(user, 'avatar-xl');
+    const avStr = `<div id="profile-av-placeholder"></div>`;
+
+    el.innerHTML = `
+      <div class="profile-hero">
+        <div class="profile-banner"></div>
+        <div class="profile-info">
+          <div class="profile-top">
+            ${avStr}
+            <div style="display:flex;gap:8px;">
+              ${isMe
+                ? `<button class="btn btn-outline btn-sm" onclick="openEditProfile()">Edit Profile</button>`
+                : `<button class="btn ${user.is_following?'btn-outline':'btn-primary'} btn-sm" id="follow-btn" onclick="toggleFollow('${user.username}')">${user.is_following ? 'Unfollow' : 'Follow'}</button>`
+              }
+            </div>
+          </div>
+          <div class="profile-name">${user.first_name ? user.first_name + ' ' + (user.last_name||'') : user.username}</div>
+          <div class="profile-handle">@${user.username}</div>
+          ${p?.bio ? `<div class="profile-bio">${escHtml(p.bio)}</div>` : ''}
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin:10px 0;color:var(--muted);font-size:13px;">
+            ${p?.location ? `<span>📍 ${p.location}</span>` : ''}
+            ${p?.website ? `<span>🔗 <a href="${p.website}" style="color:var(--accent);">${p.website}</a></span>` : ''}
+          </div>
+          <div class="profile-stats">
+            <div class="stat" onclick="showFollowModal('${user.username}','followers')">
+              <div class="stat-num">${p?.followers_count ?? 0}</div>
+              <div class="stat-label">Followers</div>
+            </div>
+            <div class="stat" onclick="showFollowModal('${user.username}','following')">
+              <div class="stat-num">${p?.following_count ?? 0}</div>
+              <div class="stat-label">Following</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">${p?.posts_count ?? 0}</div>
+              <div class="stat-label">Posts</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="profile-posts"></div>
+    `;
+
+    // Inject avatar
+    const ph = el.querySelector('#profile-av-placeholder');
+    ph.parentNode.replaceChild(av, ph);
+
+    renderPosts(document.getElementById('profile-posts'), Array.isArray(posts) ? posts : posts.results || []);
+  } catch(e) { el.innerHTML = '<div class="empty-state">Failed to load profile</div>'; }
+}
+
+function goToProfile(username) {
+  showPage('profile');
+  document.getElementById('page-title').textContent = '@' + username;
+  loadProfile(username);
+}
+
+async function toggleFollow(username) {
+  try {
+    const data = await api(`/users/${username}/follow/`, { method: 'POST' });
+    const btn = document.getElementById('follow-btn');
+    if (btn) {
+      btn.textContent = data.following ? 'Unfollow' : 'Follow';
+      btn.className = `btn ${data.following ? 'btn-outline' : 'btn-primary'} btn-sm`;
+    }
+    loadSuggestions();
+  } catch {}
+}
+
+async function showFollowModal(username, type) {
+  const modal = document.getElementById('follow-modal');
+  document.getElementById('follow-modal-title').textContent = type === 'followers' ? 'Followers' : 'Following';
+  modal.classList.remove('hidden');
+  const list = document.getElementById('follow-list');
+  list.innerHTML = '<div class="empty-state"><div class="spinner"></div></div>';
+  try {
+    const users = await api(`/users/${username}/${type}/`);
+    if (!users.length) { list.innerHTML = '<div class="empty-state">No users yet</div>'; return; }
+    list.innerHTML = '';
+    users.forEach(u => {
+      const div = document.createElement('div');
+      div.className = 'user-card';
+      div.onclick = () => { closeModal('follow-modal'); goToProfile(u.username); };
+      const av = avatarEl(u, 'avatar-sm');
+      div.appendChild(av);
+      div.innerHTML += `<div class="user-card-info"><div class="user-card-name">${u.first_name||u.username}</div><div class="user-card-handle">@${u.username}</div></div>`;
+      list.appendChild(div);
+    });
+  } catch { list.innerHTML = 'Error loading users'; }
+}
+
+// ── Edit Profile ──────────────────────────────────────────────────────────
+function openEditProfile() {
+  const p = currentUser.profile;
+  document.getElementById('ep-first').value = currentUser.first_name || '';
+  document.getElementById('ep-last').value = currentUser.last_name || '';
+  document.getElementById('ep-bio').value = p?.bio || '';
+  document.getElementById('ep-location').value = p?.location || '';
+  document.getElementById('ep-website').value = p?.website || '';
+  document.getElementById('edit-profile-modal').classList.remove('hidden');
+}
+
+async function saveProfile() {
+  const body = {
+    first_name: document.getElementById('ep-first').value,
+    last_name: document.getElementById('ep-last').value,
+    bio: document.getElementById('ep-bio').value,
+    location: document.getElementById('ep-location').value,
+    website: document.getElementById('ep-website').value,
+  };
+  try {
+    currentUser = await api('/profile/update/', { method: 'PATCH', body });
+    closeModal('edit-profile-modal');
+    loadProfile(currentUser.username);
+  } catch {}
+}
+
+// ── Suggestions ───────────────────────────────────────────────────────────
+async function loadSuggestions() {
+  try {
+    const data = await api('/users/');
+    const users = (Array.isArray(data) ? data : data.results || [])
+      .filter(u => u.id !== currentUser?.id)
+      .slice(0, 5);
+    const el = document.getElementById('suggested-users');
+    el.innerHTML = '';
+    users.forEach(u => {
+      const div = document.createElement('div');
+      div.className = 'user-card';
+      const av = avatarEl(u, 'avatar-sm');
+      div.appendChild(av);
+      const info = document.createElement('div');
+      info.className = 'user-card-info';
+      info.innerHTML = `<div class="user-card-name" style="cursor:pointer;" onclick="goToProfile('${u.username}')">${u.first_name||u.username}</div><div class="user-card-handle">@${u.username}</div>`;
+      div.appendChild(info);
+      const btn = document.createElement('button');
+      btn.className = `btn ${u.is_following ? 'btn-outline' : 'btn-primary'} btn-sm`;
+      btn.textContent = u.is_following ? 'Following' : 'Follow';
+      btn.style.fontSize = '11px'; btn.style.padding = '5px 10px';
+      btn.onclick = async () => {
+        const res = await api(`/users/${u.username}/follow/`, { method: 'POST' });
+        btn.textContent = res.following ? 'Following' : 'Follow';
+        btn.className = `btn ${res.following ? 'btn-outline' : 'btn-primary'} btn-sm`;
+        btn.style.fontSize = '11px'; btn.style.padding = '5px 10px';
+      };
+      div.appendChild(btn);
+      el.appendChild(div);
+    });
+  } catch {}
+}
+
+function loadTrending() {
+  const tags = ['#webdev', '#design', '#python', '#opensource', '#ui', '#ai', '#buildinpublic', '#javascript'];
+  const el = document.getElementById('trending-section');
+  tags.forEach(t => {
+    const span = document.createElement('span');
+    span.className = 'tag';
+    span.textContent = t;
+    span.style.cursor = 'pointer';
+    el.appendChild(span);
+  });
+}
+
+// ── Search ────────────────────────────────────────────────────────────────
+let searchTimeout;
+async function handleSearch(q) {
+  const results = document.getElementById('search-results');
+  clearTimeout(searchTimeout);
+  if (!q.trim()) { results.style.display = 'none'; return; }
+  searchTimeout = setTimeout(async () => {
+    try {
+      const data = await api(`/users/?q=${encodeURIComponent(q)}`);
+      const users = Array.isArray(data) ? data : data.results || [];
+      results.style.display = users.length ? 'block' : 'none';
+      results.innerHTML = users.slice(0,5).map(u => `
+        <div onclick="goToProfile('${u.username}');document.getElementById('search-input').value='';document.getElementById('search-results').style.display='none';"
+          style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .15s;"
+          onmouseenter="this.style.background='rgba(255,255,255,.04)'" onmouseleave="this.style.background='none'">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,hsl(${u.username.charCodeAt(0)*15%360},70%,55%),hsl(${(u.username.charCodeAt(0)*15+60)%360},70%,55%));display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;">${initials(u)}</div>
+          <div><div style="font-size:13px;font-weight:600;">${u.first_name||u.username}</div><div style="font-size:11px;color:var(--muted);">@${u.username}</div></div>
+        </div>
+      `).join('');
+    } catch {}
+  }, 300);
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-input') && !e.target.closest('#search-results'))
+    document.getElementById('search-results').style.display = 'none';
+});
+
+// ── Modal ─────────────────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.add('hidden'); });
+});
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+if (token) {
+  initApp();
+}
+</script>
+</body>
+</html>
